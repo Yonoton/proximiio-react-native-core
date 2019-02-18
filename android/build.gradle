@@ -1,0 +1,68 @@
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        google()
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:3.3.1'
+    }
+}
+
+apply plugin: 'com.android.library'
+
+android {
+    compileSdkVersion 28
+    buildToolsVersion "28.0.3"
+
+    defaultConfig {
+        minSdkVersion 14
+        targetSdkVersion 28
+        versionCode 1
+        versionName "1.0"
+    }
+    lintOptions {
+        abortOnError false
+    }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
+        exclude 'lib/armeabi/libcpaJNI.so'
+        exclude 'lib/armeabi/libsqlcipher.so'
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
+    maven {
+        url "http://proximi-io.bintray.com/proximiio-android"
+    }
+    maven {
+        url "http://indooratlas-ltd.bintray.com/mvn-public"
+    }
+    maven {
+        url 'https://maven.google.com'
+    }
+}
+
+dependencies {
+    implementation 'com.facebook.react:react-native:+'
+    implementation 'io.proximi.proximiiolibrary:proximiiolibrary:2.8.2'
+    
+    implementation("androidx.core:core:1.0.1")
+    implementation("androidx.versionedparcelable:versionedparcelable:1.0.0")
+    implementation("androidx.collection:collection:1.0.0")
+    implementation("androidx.annotation:annotation:1.0.0")
+    implementation("androidx.lifecycle:lifecycle-runtime:2.0.0")
+    implementation("androidx.lifecycle:lifecycle-common:2.0.0")
+    implementation("androidx.arch.core:core-common:2.0.0")
+}
+  
