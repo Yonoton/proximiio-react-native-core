@@ -128,6 +128,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     @Override
     public void onHostPause() {
         if (proximiioAPI != null) {
+            proximiioAPI.setActivity(null);
             proximiioAPI.onStop();
         }
     }
