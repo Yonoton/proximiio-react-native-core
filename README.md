@@ -19,6 +19,8 @@
 
 - Run `react-native link proximiio-react`
 
+### Setup / Android
+
 - If on Windows, change the slashes in `android/settings.gradle`.
 
 - Remove `android:allowBackup` field from `android/app/src/main/AndroidManifest.xml`, or use `tools:override` if you need the option.
@@ -88,7 +90,7 @@ export default class App extends Component<Props> {
         this.listener = DeviceEventEmitter.addListener(NativeModules.ProximiioReact.EVENT_POSITION, e => console.log(e));
         NativeModules.ProximiioReact.init('ADD YOUR AUTH KEY HERE');
     }
-    
+
     componentWillUnmount() {
         this.listener.remove();
     }
@@ -115,7 +117,7 @@ public class MainApplication extends Application implements ReactApplication {
     private RNProximiioReactPackage proximiioPackage = new RNProximiioReactPackage();
 
     private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
-      
+
         @Override
         public boolean getUseDeveloperSupport() {
             return BuildConfig.DEBUG;
@@ -145,7 +147,7 @@ public class MainApplication extends Application implements ReactApplication {
         super.onCreate();
         SoLoader.init(this, /* native exopackage */ false);
     }
-    
+
     RNProximiioReactPackage getProximiioPackage() {
         return proximiioPackage;
     }
