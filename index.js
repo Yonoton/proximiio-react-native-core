@@ -8,10 +8,12 @@ class Proximiio {
     this.emitter = new NativeEventEmitter(NativeModules.ProximiioNative)
   }
 
-  authorize(token) {
-    return new Promise((resolve, reject) => {
-      NativeModules.ProximiioNative.authWithToken(token, resolve, reject)
-    })
+  async authorize(token) {
+    return await NativeModules.ProximiioNative.authWithToken(token)
+  }
+
+  async currentFloor() {
+    return await NativeModules.ProximiioNative.currentFloor()
   }
 
   requestPermissions() {

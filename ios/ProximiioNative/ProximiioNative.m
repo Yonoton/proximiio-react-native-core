@@ -40,11 +40,11 @@
     ];
 }
 
-- (NSObject *)convertLocation:(ProximiioLocation *)location {
-    NSObject *data = @{
+- (NSDictionary *)convertLocation:(ProximiioLocation *)location {
+    NSMutableDictionary *data = @{
       @"lat": @(location.coordinate.latitude),
       @"lng": @(location.coordinate.longitude)
-    };
+    }.mutableCopy;
 
     if (location.horizontalAccuracy > 0) {
         [data setValue:@(location.horizontalAccuracy) forKey:@"accuracy"];
@@ -53,7 +53,7 @@
     return data;
 }
 
-- (NSObject *)convertFloor:(ProximiioFloor *)floor {
+- (NSDictionary *)convertFloor:(ProximiioFloor *)floor {
     return @{
       @"id": floor.uuid,
       @"name": floor.name,
@@ -64,7 +64,7 @@
     };
 }
 
-- (NSObject *)convertGeofence:(ProximiioGeofence *)geofence {
+- (NSDictionary *)convertGeofence:(ProximiioGeofence *)geofence {
     return @{
       @"id": geofence.uuid,
       @"name": geofence.name,
@@ -75,7 +75,7 @@
     };
 }
 
-- (NSObject *)convertPrivacyZone:(ProximiioPrivacyZone *)privacyZone {
+- (NSDictionary *)convertPrivacyZone:(ProximiioPrivacyZone *)privacyZone {
     return @{
       @"id": privacyZone.uuid,
       @"name": privacyZone.name,
@@ -87,11 +87,11 @@
 }
 
 
-- (NSObject *)convertInput:(ProximiioInput *)input {
-    NSObject *data = @{
+- (NSDictionary *)convertInput:(ProximiioInput *)input {
+    NSMutableDictionary *data = @{
       @"id": input.uuid,
       @"name": input.name
-    };
+    }.mutableCopy;
 
     if (input.type == kProximiioInputTypeIBeacon) {
         [data setValue:@"ibeacon" forKey:@"type"];
@@ -104,16 +104,16 @@
     return data;
 }
 
-- (NSObject *)convertIBeacon:(ProximiioIBeacon *)beacon {
+- (NSDictionary *)convertIBeacon:(ProximiioIBeacon *)beacon {
     ProximiioInput *input = [[ProximiioResourceManager sharedManager] inputWithUUID:beacon.uuid
                                                                               major:beacon.major
                                                                               minor:beacon.minor];
-    NSObject *data = @{
+    NSMutableDictionary *data = @{
       @"uuid": beacon.uuid.UUIDString,
       @"major": @(beacon.major),
       @"minor": @(beacon.minor),
       @"accuracy": @(beacon.proximity)
-    };
+    }.mutableCopy;
 
     if (input != nil) {
         [data setValue:[self convertInput:input] forKey:@"input"];
@@ -122,13 +122,13 @@
     return data;
 }
 
-- (NSObject *)convertEddystoneBeacon:(ProximiioEddystoneBeacon *)beacon {
+- (NSDictionary *)convertEddystoneBeacon:(ProximiioEddystoneBeacon *)beacon {
     ProximiioInput *input = [[ProximiioResourceManager sharedManager] inputWithNamespace:beacon.Namespace
                                                                                 instance:beacon.InstanceID];
-    NSObject *data = @{
+    NSMutableDictionary *data = @{
       @"namespace": beacon.Namespace,
       @"instanceId": beacon.InstanceID
-    };
+    }.mutableCopy;
 
     if (input != nil) {
         [data setValue:[self convertInput:input] forKey:@"input"];
@@ -142,6 +142,11 @@
 }
 
 - (void)proximiioPositionUpdated:(ProximiioLocation *)location {
+    NSMutableDictionary *body = [[self convertLocation:location] mutableCopy];
+    ProximiioFloor *floor = [Proximiio sharedInstance].currentFloor;
+    if (floor != nil) {
+      [body setValue:[self convertFloor:[Proximiio sharedInstance].currentFloor] forKey:@"floor"];
+    }
     [self _sendEventWithName:@"ProximiioPositionUpdated" body:[self convertLocation:location]];
 }
 
@@ -191,7 +196,8 @@
 
 - (void)_sendEventWithName:(NSString *)event body:(id)body {
     if (hasListeners) {
-        [self _sendEventWithName:event body:body];
+//        NSLog(@"sending event: %@ with body: %@", event, body);
+        [self sendEventWithName:event body:body];
     }
 }
 
@@ -208,7 +214,7 @@ RCT_EXPORT_METHOD(authWithToken:(NSString *)token
                                          } else {
                                              NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
                                                                                         code:403
-                                                                                    userInfo:nil];
+                                                                                    userInfo:nil]; 
                                              reject(@"403", @"Proximi.io authorization failed", error);
                                          }
                                      }];
@@ -225,6 +231,11 @@ RCT_EXPORT_METHOD(visitorId:(RCTPromiseResolveBlock)resolve
 
 RCT_EXPORT_METHOD(currentFloor:(RCTPromiseResolveBlock)resolve
                       rejecter:(RCTPromiseRejectBlock)reject) {
-    resolve([self convertFloor:[Proximiio sharedInstance].currentFloor]);
+    ProximiioFloor *floor = [Proximiio sharedInstance].currentFloor;
+    if (floor != nil) {
+      resolve([self convertFloor:[Proximiio sharedInstance].currentFloor]);
+    } else {
+      resolve(nil);
+    }
 }
 @end
