@@ -239,7 +239,7 @@ export default class App extends Component<Props> {
 
 In your project folder:
 
-- npm install -s proximiio-react-native-core
+- npm install -s https://github.com/proximiio/proximiio-react-native-core
 
 
 ### Setup / Android
