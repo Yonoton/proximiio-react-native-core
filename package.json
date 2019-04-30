@@ -1,6 +1,6 @@
 {
   "name": "proximiio-react-native-core",
-  "version": "0.2.0",
+  "version": "0.2.2",
   "description": "Proximi.io React Native Library",
   "main": "index.js",
   "scripts": {
@@ -10,7 +10,7 @@
     "react-native"
   ],
   "author": "Proximi.io",
-  "license": "MIT",
+  "license": "UNLICENSED",
   "peerDependencies": {
     "react-native": "^0.41.2"
   }

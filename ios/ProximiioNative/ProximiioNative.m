@@ -43,7 +43,8 @@
 - (NSDictionary *)convertLocation:(ProximiioLocation *)location {
     NSMutableDictionary *data = @{
       @"lat": @(location.coordinate.latitude),
-      @"lng": @(location.coordinate.longitude)
+      @"lng": @(location.coordinate.longitude),
+      @"sourceType": location.sourceType
     }.mutableCopy;
 
     if (location.horizontalAccuracy > 0) {
@@ -112,7 +113,9 @@
       @"uuid": beacon.uuid.UUIDString,
       @"major": @(beacon.major),
       @"minor": @(beacon.minor),
-      @"accuracy": @(beacon.proximity)
+      @"accuracy": @(beacon.distance),
+      @"type": @"ibeacon",
+      @"identifier": [NSString stringWithFormat:@"%@/%d/%d", beacon.uuid.UUIDString, beacon.major, beacon.minor]
     }.mutableCopy;
 
     if (input != nil) {
@@ -127,7 +130,10 @@
                                                                                 instance:beacon.InstanceID];
     NSMutableDictionary *data = @{
       @"namespace": beacon.Namespace,
-      @"instanceId": beacon.InstanceID
+      @"instanceId": beacon.InstanceID,
+      @"identifier": [NSString stringWithFormat:@"%@/%@", beacon.Namespace, beacon.InstanceID],
+      @"accuracy": @(beacon.accuracy.doubleValue),
+      @"type": @"eddystone",
     }.mutableCopy;
 
     if (input != nil) {
@@ -147,6 +153,7 @@
     if (floor != nil) {
       [body setValue:[self convertFloor:[Proximiio sharedInstance].currentFloor] forKey:@"floor"];
     }
+
     [self _sendEventWithName:@"ProximiioPositionUpdated" body:[self convertLocation:location]];
 }
 
@@ -196,7 +203,7 @@
 
 - (void)_sendEventWithName:(NSString *)event body:(id)body {
     if (hasListeners) {
-//        NSLog(@"sending event: %@ with body: %@", event, body);
+//        NSLog(@"sending event: %@ with  body: %@", event, body);
         [self sendEventWithName:event body:body];
     }
 }
@@ -214,7 +221,7 @@ RCT_EXPORT_METHOD(authWithToken:(NSString *)token
                                          } else {
                                              NSError *error = [[NSError alloc] initWithDomain:NSURLErrorDomain
                                                                                         code:403
-                                                                                    userInfo:nil]; 
+                                                                                    userInfo:nil];
                                              reject(@"403", @"Proximi.io authorization failed", error);
                                          }
                                      }];
@@ -222,6 +229,18 @@ RCT_EXPORT_METHOD(authWithToken:(NSString *)token
 
 RCT_EXPORT_METHOD(requestPermissions) {
     [[Proximiio sharedInstance] requestPermissions];
+}
+
+RCT_EXPORT_METHOD(disable) {
+  [[Proximiio sharedInstance] disable];
+}
+
+RCT_EXPORT_METHOD(enable) {
+  [[Proximiio sharedInstance] enable];
+}
+
+RCT_EXPORT_METHOD(setBufferSize:(nonnull NSNumber *) bufferSize) {
+  [[Proximiio sharedInstance] setBufferSize:bufferSize.intValue];
 }
 
 RCT_EXPORT_METHOD(visitorId:(RCTPromiseResolveBlock)resolve

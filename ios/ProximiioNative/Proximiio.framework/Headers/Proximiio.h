@@ -18,7 +18,6 @@
 #import <Proximiio/ProximiioAPIResult.h>
 #import <Proximiio/ProximiioResourceManager.h>
 #import <Proximiio/ProximiioInputType.h>
-#import <Proximiio/ProximiioCustomLocation.h>
 #import <Proximiio/ProximiioBufferSize.h>
 #import <Proximiio/ProximiioEventType.h>
 #import <Proximiio/ProximiioPrivacyZone.h>
@@ -64,6 +63,9 @@ FOUNDATION_EXPORT const unsigned char ProximiioVersionString[];
 - (void)handlePush:(NSString *)title;
 - (void)handleOutput:(NSObject *)payload;
 - (void)handleFloorChange:(ProximiioFloor *)floor;
+
+- (void)setDesiredAccuracy:(CLLocationAccuracy)desiredAccuracy;
+- (CLLocationAccuracy)desiredAccuracy;
 
 @property (weak) id delegate;
 @property (nonatomic, strong, readonly) NSString *visitorId;
