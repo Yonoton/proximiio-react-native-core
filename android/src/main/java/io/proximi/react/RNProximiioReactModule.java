@@ -2,37 +2,7 @@ package io.proximi.react;
 
 import android.app.Activity;
 import android.content.Intent;
-
-import com.facebook.react.bridge.ActivityEventListener;
-import com.facebook.react.bridge.Arguments;
-import com.facebook.react.bridge.LifecycleEventListener;
-import com.facebook.react.bridge.Promise;
-import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContextBaseJavaModule;
-import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.WritableArray;
-import com.facebook.react.bridge.WritableMap;
-import com.facebook.react.modules.core.DeviceEventManagerModule;
-
-import org.json.JSONObject;
-
-import java.util.HashMap;
-import java.util.Map;
-
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import io.proximi.proximiiolibrary.ProximiioAPI;
-import io.proximi.proximiiolibrary.ProximiioArea;
-import io.proximi.proximiiolibrary.ProximiioBLEDevice;
-import io.proximi.proximiiolibrary.ProximiioEddystone;
-import io.proximi.proximiiolibrary.ProximiioFloor;
-import io.proximi.proximiiolibrary.ProximiioGeofence;
-import io.proximi.proximiiolibrary.ProximiioIBeacon;
-import io.proximi.proximiiolibrary.ProximiioInput;
-import io.proximi.proximiiolibrary.ProximiioListener;
-import io.proximi.proximiiolibrary.ProximiioOptions;
-
-import static io.proximi.proximiiolibrary.ProximiioListener.LoginError.LOGIN_FAILED;
+import android.util.LoginError.LOGIN_FAILED;
 
 public class RNProximiioReactModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
     private ProximiioOptions options;
@@ -55,6 +25,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     private static final String EVENT_LOST_EDDYSTONE = "ProximiioLostEddystoneBeacon";
 
     private Promise authPromise;
+    private ProximiioFloor lastFloor;
 
     RNProximiioReactModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -82,6 +53,15 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     @ReactMethod
     public void requestPermissions() {
 
+    }
+
+    @ReactMethod
+    public void currentFloor(Promise promise) {
+        if (lastFloor == null) {
+            promise.resolve(null);
+        } else {
+            promise.resolve(convertFloor(lastFloor));
+        }
     }
 
     private WritableMap convertLocation(double lat, double lon, double accuracy) {
@@ -125,7 +105,11 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
             map.putString("uuid", beacon.getUUID());
             map.putInt("major", beacon.getMajor());
             map.putInt("minor", beacon.getMinor());
-            map.putDouble("accuracy", beacon.getDistance());
+            if (beacon != null && beacon.getDistance() != null) {
+                map.putDouble("accuracy", beacon.getDistance());
+            } else {
+                map.putDouble("accuracy", 50.0);
+            }
             inputMap.putString("type", "ibeacon");
         } else if (device.getType() == ProximiioInput.InputType.EDDYSTONE) {
             ProximiioEddystone beacon = (ProximiioEddystone)device;
@@ -190,6 +174,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
                 @Override
                 public void changedFloor(@Nullable ProximiioFloor floor) {
+                    lastFloor = floor;
                     sendEvent(EVENT_FLOOR_CHANGED, convertFloor(floor));
                 }
 
@@ -241,14 +226,10 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
                 @Override
                 public void loggedIn(boolean online, String auth) {
-                    if (authPromise != null) {
-                        if (online) {
-                            WritableMap map = Arguments.createMap();
-                            map.putString("visitorId", proximiioAPI.getVisitorID());
-                            authPromise.resolve(map);
-                        } else {
-                            authPromise.reject("403", "Proximi.io authorization failed");
-                        }
+                    if (authPromise != null && online) {
+                        WritableMap map = Arguments.createMap();
+                        map.putString("visitorId", proximiioAPI.getVisitorID());
+                        authPromise.resolve(map);
                     }
                 }
 
@@ -311,13 +292,6 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (proximiioAPI != null) {
-            proximiioAPI.onActivityResult(requestCode, resultCode, data);
-        }
-    }
-
-    @Override
     public String getName() {
         return "ProximiioNative";
     }
@@ -345,5 +319,17 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         if (activity != null) {
             proximiioAPI.setActivity(activity);
         }
+    }
+
+    @Override
+    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+        if (proximiioAPI != null) {
+            proximiioAPI.onActivityResult(requestCode, resultCode, data);
+        }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+
     }
 }
