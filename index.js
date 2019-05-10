@@ -16,6 +16,10 @@ class Proximiio {
     return await NativeModules.ProximiioNative.currentFloor()
   }
 
+  setBufferSize(buffer) {
+    NativeModules.ProximiioNative.setBufferSize(buffer.id)
+  }
+
   requestPermissions() {
     NativeModules.ProximiioNative.requestPermissions()
   }
@@ -33,10 +37,22 @@ class Proximiio {
       EnteredPrivacyZone: "ProximiioEnteredPrivacyZone",
       ExitedPrivacyZone: "ProximiioExitedPrivacyZone",
       FoundIBeacon: "ProximiioFoundIBeacon",
+      UpdatedIBeacon: "ProximiioUpdatedIBeacon",
       LostIBeacon: "ProximiioLostIBeacon",
       FoundEddystoneBeacon: "ProximiioFoundEddystoneBeacon",
+      UpdatedEddystoneBeacon: "ProximiioUpdatedEddystoneBeacon",
       LostEddystoneBeacon: "ProximiioLostEddystoneBeacon"
     }
+  }
+
+  get bufferSizes() {
+    return [
+      { id: 0, label: 'Mini 0.5s' },
+      { id: 1, label: 'Small 1.2s' },
+      { id: 2, label: 'Medium 3s' },
+      { id: 3, label: 'Large 6s' },
+      { id: 4, label: 'XLarge 10s' }
+    ]
   }
 }
 
