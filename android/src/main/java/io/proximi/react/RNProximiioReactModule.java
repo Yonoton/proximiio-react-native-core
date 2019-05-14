@@ -2,7 +2,36 @@ package io.proximi.react;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.LoginError.LOGIN_FAILED;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
+import com.facebook.react.bridge.ActivityEventListener;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.LifecycleEventListener;
+import com.facebook.react.bridge.Promise;
+import com.facebook.react.bridge.ReactApplicationContext;
+import com.facebook.react.bridge.ReactContextBaseJavaModule;
+import com.facebook.react.bridge.ReactMethod;
+import com.facebook.react.bridge.WritableArray;
+import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import java.util.HashMap;
+import java.util.Map;
+
+import io.proximi.proximiiolibrary.ProximiioAPI;
+import io.proximi.proximiiolibrary.ProximiioArea;
+import io.proximi.proximiiolibrary.ProximiioBLEDevice;
+import io.proximi.proximiiolibrary.ProximiioEddystone;
+import io.proximi.proximiiolibrary.ProximiioFloor;
+import io.proximi.proximiiolibrary.ProximiioGeofence;
+import io.proximi.proximiiolibrary.ProximiioIBeacon;
+import io.proximi.proximiiolibrary.ProximiioInput;
+import io.proximi.proximiiolibrary.ProximiioListener;
+import io.proximi.proximiiolibrary.ProximiioOptions;
+
+import static io.proximi.proximiiolibrary.ProximiioListener.LoginError.LOGIN_FAILED;
 
 public class RNProximiioReactModule extends ReactContextBaseJavaModule implements LifecycleEventListener, ActivityEventListener {
     private ProximiioOptions options;
@@ -130,7 +159,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         return map;
     }
 
-    private WritableMap convertFloor(ProximiioFloor floor) {
+    private Object convertFloor(ProximiioFloor floor) {
         WritableMap map = Arguments.createMap();
         map.putString("id", floor.getID());
         map.putString("name", floor.getName());
