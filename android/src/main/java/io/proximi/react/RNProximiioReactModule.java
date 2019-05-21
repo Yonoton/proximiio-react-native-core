@@ -2,6 +2,8 @@ package io.proximi.react;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -65,8 +67,8 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void setNotificationMode(Object mode) {
-        options.setNotificationMode(ProximiioOptions.NotificationMode.fromInt((int)mode));
+    public void setNotificationMode(int mode) {
+        options.setNotificationMode(ProximiioOptions.NotificationMode.fromInt(mode));
     }
 
     @ReactMethod
@@ -77,6 +79,14 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     @ReactMethod
     public void setNotificationText(String text) {
         options.setNotificationText(text);
+    }
+
+    @ReactMethod
+    public void setNotificationIcon(String icon) {
+        int identifier = reactContext.getResources().getIdentifier(icon, "drawable", reactContext.getPackageName());
+        if (identifier != 0) {
+            options.setNotificationIcon(identifier);
+        }
     }
 
     @ReactMethod
@@ -161,38 +171,39 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
     private Object convertFloor(ProximiioFloor floor) {
         WritableMap map = Arguments.createMap();
-        map.putString("id", floor.getID());
-        map.putString("name", floor.getName());
-        map.putInt("level", floor.getFloorNumber());
+        if (floor != null) {
+            map.putString("id", floor.getID());
+            map.putString("name", floor.getName());
+            map.putInt("level", floor.getFloorNumber());
 
-        if (floor.getPlace() != null) {
-            map.putString("place_id", floor.getPlace().getID());
-        }
-
-        if (floor.getFloorPlanURL() != null) {
-            map.putString("floorplan", floor.getFloorPlanURL());
-        }
-
-        if (floor.getAnchors() != null) {
-            WritableArray anchors = Arguments.createArray();
-            for (int i = 0; i < floor.getAnchors().length; i++) {
-                WritableArray coords = Arguments.createArray();
-                coords.pushDouble(floor.getAnchors()[i][0]);
-                coords.pushDouble(floor.getAnchors()[i][1]);
-                anchors.pushArray(coords);
+            if (floor.getPlace() != null) {
+                map.putString("place_id", floor.getPlace().getID());
             }
-            map.putArray("anchors", anchors);
-        } else {
-            map.putArray("anchors", Arguments.createArray());
-        }
 
+            if (floor.getFloorPlanURL() != null) {
+                map.putString("floorplan", floor.getFloorPlanURL());
+            }
+
+            if (floor.getAnchors() != null) {
+                WritableArray anchors = Arguments.createArray();
+                for (int i = 0; i < floor.getAnchors().length; i++) {
+                    WritableArray coords = Arguments.createArray();
+                    coords.pushDouble(floor.getAnchors()[i][0]);
+                    coords.pushDouble(floor.getAnchors()[i][1]);
+                    anchors.pushArray(coords);
+                }
+                map.putArray("anchors", anchors);
+            } else {
+                map.putArray("anchors", Arguments.createArray());
+            }
+        }
         return map;
     }
 
     @ReactMethod
     public void authWithToken(String auth, Promise promise) {
+        authPromise = promise;
         if (proximiioAPI == null) {
-            authPromise = promise;
             proximiioAPI = new ProximiioAPI(TAG, reactContext, options);
 
             proximiioAPI.setListener(new ProximiioListener() {
@@ -316,7 +327,6 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         if (proximiioAPI != null) {
             proximiioAPI.onRequestPermissionsResult(requestCode, permissions, grantResults);
-            // Log.d("ReactNative", "ANDROID GOT PERMISSION RESULT");
         }
     }
 
