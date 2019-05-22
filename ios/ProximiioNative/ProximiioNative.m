@@ -243,6 +243,31 @@ RCT_EXPORT_METHOD(setBufferSize:(nonnull NSNumber *) bufferSize) {
   [[Proximiio sharedInstance] setBufferSize:bufferSize.intValue];
 }
 
+RCT_EXPORT_METHOD(setNativeAccuracy:(nonnull NSNumber *) accuracyLevel) {
+  CLLocationAccuracy accuracy;
+  if (accuracyLevel.intValue == 1) { // cell
+    accuracy = kCLLocationAccuracyThreeKilometers;
+  } else if (accuracyLevel.intValue == 2) { // wifi
+    accuracy = kCLLocationAccuracyNearestTenMeters;
+  } else if (accuracyLevel.intValue == 4) { // navigation
+    accuracy = kCLLocationAccuracyBestForNavigation;
+  } else { // default / gps
+    accuracy = kCLLocationAccuracyBest;
+  }
+  
+  [[Proximiio sharedInstance] setDesiredAccuracy:accuracy];
+}
+
+RCT_EXPORT_METHOD(currentGeofences:(RCTPromiseResolveBlock)resolve
+                  rejecter:(RCTPromiseRejectBlock)reject) {
+  NSMutableArray *geofences = [NSMutableArray array];
+  for (ProximiioGeofence *geofence in [Proximiio sharedInstance].lastGeofences) {
+    [geofences addObject:[self convertGeofence:geofence]];
+  }
+  
+  resolve(geofences);
+}
+
 RCT_EXPORT_METHOD(visitorId:(RCTPromiseResolveBlock)resolve
                    rejecter:(RCTPromiseRejectBlock)reject) {
     resolve([Proximiio sharedInstance].visitorId);
@@ -257,4 +282,5 @@ RCT_EXPORT_METHOD(currentFloor:(RCTPromiseResolveBlock)resolve
       resolve(nil);
     }
 }
+
 @end

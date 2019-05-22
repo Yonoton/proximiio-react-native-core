@@ -23,6 +23,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import io.proximi.proximiiolibrary.ProximiioAPI;
+import io.proximi.proximiiolibrary.ProximiioApplication;
 import io.proximi.proximiiolibrary.ProximiioArea;
 import io.proximi.proximiiolibrary.ProximiioBLEDevice;
 import io.proximi.proximiiolibrary.ProximiioEddystone;
@@ -89,6 +90,21 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         }
     }
 
+
+    @ReactMethod
+    public void updateOptions() {
+        if (proximiioAPI != null) {
+            proximiioAPI.updateNotificationOptions(options);
+        }
+    }
+
+    @ReactMethod
+    public void setNativeAccuracy(int accuracy) {
+        if (proximiioAPI != null) {
+            proximiioAPI.setNativeAccuracy(ProximiioApplication.NativeAccuracy.fromInt(accuracy));
+        }
+    }
+
     @ReactMethod
     public void requestPermissions() {
 
@@ -103,11 +119,31 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         }
     }
 
-    private WritableMap convertLocation(double lat, double lon, double accuracy) {
+    private WritableMap convertLocation(double lat, double lon, double accuracy, @Nullable ProximiioGeofence.EventType type) {
         WritableMap map = Arguments.createMap();
         map.putDouble("lat", lat);
         map.putDouble("lng", lon);
         map.putDouble("accuracy", accuracy);
+
+        if (type != null) {
+            String typeString = "";
+            if (type == ProximiioGeofence.EventType.NATIVE) {
+                typeString = "native";
+            } else if (type == ProximiioGeofence.EventType.BEACON) {
+                typeString = "beacon";
+            } else if (type == ProximiioGeofence.EventType.TRILATERATED) {
+                typeString = "trilaterated";
+            } else if (type == ProximiioGeofence.EventType.INDOORATLAS) {
+                typeString = "indooratlas";
+            } else if (type == ProximiioGeofence.EventType.DISCONNECT) {
+                typeString = "disconnect";
+            } else if (type == ProximiioGeofence.EventType.CUSTOM) {
+                typeString = "custom";
+            } else {
+                typeString = "unknown";
+            }
+            map.putString("sourceType", typeString);
+        }
         return map;
     }
 
@@ -115,7 +151,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         WritableMap map = Arguments.createMap();
         map.putString("id", area.getID());
         map.putString("name", area.getName());
-        map.putMap("area", convertLocation(area.getLat(), area.getLon(), area.getRadius()));
+        map.putMap("area", convertLocation(area.getLat(), area.getLon(), area.getRadius(), null));
         map.putDouble("radius", area.getRadius());
         map.putBoolean("isPolygon", area.getPolygon() != null);
 
@@ -205,11 +241,15 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         authPromise = promise;
         if (proximiioAPI == null) {
             proximiioAPI = new ProximiioAPI(TAG, reactContext, options);
-
             proximiioAPI.setListener(new ProximiioListener() {
                 @Override
+                public void positionExtended(double lat, double lon, double accuracy, ProximiioGeofence.EventType type) {
+                    sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy, type));
+                }
+
+                @Override
                 public void position(double lat, double lon, double accuracy) {
-                    sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy));
+                    sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy, null));
                 }
 
                 @Override
@@ -294,7 +334,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void destroyService(boolean eraseData) {
+        public void destroyService(boolean eraseData) {
         if (proximiioAPI != null) {
             proximiioAPI.destroyService(eraseData);
             proximiioAPI = null;

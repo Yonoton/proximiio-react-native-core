@@ -59,6 +59,16 @@ class Proximiio {
     }
   }
 
+  updateOptions() {
+    if (Platform.OS === 'android') {
+      NativeModules.ProximiioNative.updateOptions()
+    }
+  }
+
+  setNativeAccuracy(accuracy) {
+    NativeModules.ProximiioNative.setNativeAccuracy(accuracy)
+  }
+
   get Events() {
     return {
       PositionUpdated: "ProximiioPositionUpdated",
@@ -91,6 +101,15 @@ class Proximiio {
       Disabled: 0,
       Enabled: 1,
       Required: 2
+    }
+  }
+
+  get NativeAccuracy() {
+    return {
+      Cellular: 1,
+      WIFI: 2,
+      GPS: 3,
+      Navigation: 4
     }
   }
 }
