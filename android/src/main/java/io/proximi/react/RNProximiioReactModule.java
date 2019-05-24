@@ -178,8 +178,11 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         if (device.getType() == ProximiioInput.InputType.IBEACON) {
             ProximiioIBeacon beacon = (ProximiioIBeacon)device;
             map.putString("uuid", beacon.getUUID());
+            map.putString("type", "ibeacon");
+            map.putString("identifier", beacon.getUUID()+"/" + beacon.getMajor() + "/" + beacon.getMinor());
             map.putInt("major", beacon.getMajor());
             map.putInt("minor", beacon.getMinor());
+
             if (beacon != null && beacon.getDistance() != null) {
                 map.putDouble("accuracy", beacon.getDistance());
             } else {
@@ -188,8 +191,10 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
             inputMap.putString("type", "ibeacon");
         } else if (device.getType() == ProximiioInput.InputType.EDDYSTONE) {
             ProximiioEddystone beacon = (ProximiioEddystone)device;
+            map.putString("type", "eddystone");
             map.putString("namespace", beacon.getNamespace());
             map.putString("instanceId", beacon.getInstanceID());
+            map.putString("identifier", beacon.getNamespace() + "/" + beacon.getInstanceID());
             inputMap.putString("type", "eddystone");
         } else if (device.getType() == ProximiioInput.InputType.GENERIC_BLE ||
                    device.getType() == ProximiioInput.InputType.CUSTOM) {
@@ -210,7 +215,11 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         if (floor != null) {
             map.putString("id", floor.getID());
             map.putString("name", floor.getName());
-            map.putInt("level", floor.getFloorNumber());
+            if (floor.getFloorNumber() != null) {
+                map.putInt("level", floor.getFloorNumber());
+            } else {
+                map.putInt("level", 0);
+            }
 
             if (floor.getPlace() != null) {
                 map.putString("place_id", floor.getPlace().getID());
@@ -245,11 +254,6 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
                 @Override
                 public void positionExtended(double lat, double lon, double accuracy, ProximiioGeofence.EventType type) {
                     sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy, type));
-                }
-
-                @Override
-                public void position(double lat, double lon, double accuracy) {
-                    sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy, null));
                 }
 
                 @Override
@@ -334,7 +338,16 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-        public void destroyService(boolean eraseData) {
+    public void destroy(boolean eraseData) {
+        if (proximiioAPI != null) {
+            proximiioAPI.onStop();
+            proximiioAPI.destroy();
+        }
+        this.destroyService(eraseData);
+    }
+
+    @ReactMethod
+    public void destroyService(boolean eraseData) {
         if (proximiioAPI != null) {
             proximiioAPI.destroyService(eraseData);
             proximiioAPI = null;

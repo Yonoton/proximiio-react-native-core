@@ -540,7 +540,42 @@ Performs notification options update. Call this method once after customizing no
 }
 ```
 
+## Example Snippets
+
+### Change notification title using current geofence
+
+```js
+this.proximiioSubscriptions = {
+    enteredGeofence: Proximiio.subscribe(
+        Proximiio.Events.EnteredGeofence, this.onGeofenceEnter.bind(this)
+    ),
+    exitedGeofence: Proximiio.subscribe(
+        Proximiio.Events.ExitedGeofence, this.onGeofenceExit.bind(this)
+    )
+}
+
+onGeofenceEnter(geofence) {
+    console.log(`entered geofence: ${geofence.name}`)
+    Proximiio.setNotificationTitle(`Entered ${geofence.name}`)
+    Proximiio.updateOptions()
+}
+
+onGeofenceExit(geofence) {
+    Proximiio.setNotificationTitle(`Left ${geofence.name}`)
+    Proximiio.updateOptions()
+}
+
+```
+
 ## ChangeLog
+
+### 0.2.6
+- added example snippets section in the README.md file
+- android position source type support
+- android lifecycle improvements
+- android added beacon identifiers
+- js setBufferSize ios platform limitation
+- js added destroy lifecycle method
 
 ### 0.2.5
 - added Proximiio.setNativeAccuracy() method

@@ -24,7 +24,9 @@ class Proximiio {
   }
 
   setBufferSize(buffer) {
-    NativeModules.ProximiioNative.setBufferSize(buffer.id)
+    if (Platform.OS === 'ios') {
+      NativeModules.ProximiioNative.setBufferSize(buffer.id)
+    }
   }
 
   requestPermissions() {
@@ -67,6 +69,10 @@ class Proximiio {
 
   setNativeAccuracy(accuracy) {
     NativeModules.ProximiioNative.setNativeAccuracy(accuracy)
+  }
+
+  destroy(erase) {
+    NativeModules.ProximiioNative.destroy(erase)
   }
 
   get Events() {
