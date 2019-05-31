@@ -569,6 +569,10 @@ onGeofenceExit(geofence) {
 
 ## ChangeLog
 
+### 0.2.7
+- android sdk version bump
+- ios sdk version bump
+
 ### 0.2.6
 - added example snippets section in the README.md file
 - android position source type support
