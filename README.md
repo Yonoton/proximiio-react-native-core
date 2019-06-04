@@ -569,6 +569,9 @@ onGeofenceExit(geofence) {
 
 ## ChangeLog
 
+### 0.2.8
+- ios sdk version bump
+
 ### 0.2.7
 - android sdk version bump
 - ios sdk version bump
