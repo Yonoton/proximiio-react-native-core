@@ -569,6 +569,9 @@ onGeofenceExit(geofence) {
 
 ## ChangeLog
 
+### 0.2.9
+- added currentGeofences method
+
 ### 0.2.8
 - ios sdk version bump
 

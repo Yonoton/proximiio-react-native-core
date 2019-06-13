@@ -23,6 +23,10 @@ class Proximiio {
     return await NativeModules.ProximiioNative.currentFloor()
   }
 
+  async currentGeofences() {
+    return await NativeModules.ProximiioNative.currentGeofences()
+  }
+
   setBufferSize(buffer) {
     if (Platform.OS === 'ios') {
       NativeModules.ProximiioNative.setBufferSize(buffer.id)

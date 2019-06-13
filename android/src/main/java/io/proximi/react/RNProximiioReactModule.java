@@ -2,7 +2,6 @@ package io.proximi.react;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -19,7 +18,9 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import io.proximi.proximiiolibrary.ProximiioAPI;
@@ -58,6 +59,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
     private Promise authPromise;
     private ProximiioFloor lastFloor;
+    private List<ProximiioGeofence> geofences = new ArrayList<ProximiioGeofence>();
 
     RNProximiioReactModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -117,6 +119,11 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         } else {
             promise.resolve(convertFloor(lastFloor));
         }
+    }
+
+    @ReactMethod
+    public void currentGeofeDnces(Promise promise) {
+        promise.resolve(geofences);
     }
 
     private WritableMap convertLocation(double lat, double lon, double accuracy, @Nullable ProximiioGeofence.EventType type) {
@@ -264,6 +271,9 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
                 @Override
                 public void geofenceEnter(ProximiioGeofence geofence) {
+                    if (!geofences.contains(geofence)) {
+                        geofences.add(geofence);
+                    }
                     sendEvent(EVENT_GEOFENCE_ENTER, convertArea(geofence));
                 }
 
@@ -274,6 +284,9 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
                         map.putInt("dwellTime", dwellTime.intValue());
                     } else {
                         map.putNull("dwellTime");
+                    }
+                    if (geofences.contains(geofence)) {
+                        geofences.remove(geofence);
                     }
                     sendEvent(EVENT_GEOFENCE_EXIT, map);
                 }
@@ -381,6 +394,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
         if (proximiioAPI != null) {
             proximiioAPI.onRequestPermissionsResult(requestCode, permissions, grantResults);
         }
+        // super.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 
     @Override
