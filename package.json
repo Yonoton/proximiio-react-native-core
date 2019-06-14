@@ -1,6 +1,6 @@
 {
   "name": "proximiio-react-native-core",
-  "version": "0.2.9",
+  "version": "0.2.10",
   "description": "Proximi.io React Native Library",
   "main": "index.js",
   "scripts": {

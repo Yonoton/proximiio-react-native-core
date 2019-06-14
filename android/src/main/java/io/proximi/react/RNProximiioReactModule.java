@@ -343,10 +343,12 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
             });
 
             proximiioAPI.setAuth(auth, true);
-
             trySetActivity();
-
             proximiioAPI.onStart();
+        } else {
+            WritableMap map = Arguments.createMap();
+            map.putString("visitorId", proximiioAPI.getVisitorID());
+            authPromise.resolve(map);
         }
     }
 
