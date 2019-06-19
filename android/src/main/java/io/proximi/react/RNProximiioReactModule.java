@@ -2,7 +2,7 @@ package io.proximi.react;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.util.Log;
+
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -122,7 +122,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @ReactMethod
-    public void currentGeofeDnces(Promise promise) {
+    public void currentGeofences(Promise promise) {
         promise.resolve(geofences);
     }
 
@@ -204,7 +204,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
             map.putString("identifier", beacon.getNamespace() + "/" + beacon.getInstanceID());
             inputMap.putString("type", "eddystone");
         } else if (device.getType() == ProximiioInput.InputType.GENERIC_BLE ||
-                   device.getType() == ProximiioInput.InputType.CUSTOM) {
+                device.getType() == ProximiioInput.InputType.CUSTOM) {
             inputMap.putString("type", "custom");
         }
 
@@ -255,102 +255,102 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     @ReactMethod
     public void authWithToken(String auth, Promise promise) {
         authPromise = promise;
-        if (proximiioAPI == null) {
-            proximiioAPI = new ProximiioAPI(TAG, reactContext, options);
-            proximiioAPI.setListener(new ProximiioListener() {
-                @Override
-                public void positionExtended(double lat, double lon, double accuracy, ProximiioGeofence.EventType type) {
-                    sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy, type));
-                }
-
-                @Override
-                public void changedFloor(@Nullable ProximiioFloor floor) {
-                    lastFloor = floor;
-                    sendEvent(EVENT_FLOOR_CHANGED, convertFloor(floor));
-                }
-
-                @Override
-                public void geofenceEnter(ProximiioGeofence geofence) {
-                    if (!geofences.contains(geofence)) {
-                        geofences.add(geofence);
-                    }
-                    sendEvent(EVENT_GEOFENCE_ENTER, convertArea(geofence));
-                }
-
-                @Override
-                public void geofenceExit(ProximiioGeofence geofence, @Nullable Long dwellTime) {
-                    WritableMap map = convertArea(geofence);
-                    if (dwellTime != null) {
-                        map.putInt("dwellTime", dwellTime.intValue());
-                    } else {
-                        map.putNull("dwellTime");
-                    }
-                    if (geofences.contains(geofence)) {
-                        geofences.remove(geofence);
-                    }
-                    sendEvent(EVENT_GEOFENCE_EXIT, map);
-                }
-
-                @Override
-                public void privacyZoneEnter(ProximiioArea area) {
-                    sendEvent(EVENT_PRIVACY_ZONE_ENTER, convertArea(area));
-                }
-
-                @Override
-                public void privacyZoneExit(ProximiioArea area) {
-                    sendEvent(EVENT_PRIVACY_ZONE_EXIT, convertArea(area));
-                }
-
-                @Override
-                public void foundDevice(ProximiioBLEDevice device, boolean registered) {
-                    WritableMap map = convertDevice(device);
-                    if (device.getType() == ProximiioInput.InputType.IBEACON) {
-                        sendEvent(EVENT_FOUND_IBEACON, map);
-                    } else if (device.getType() == ProximiioInput.InputType.EDDYSTONE) {
-                        sendEvent(EVENT_FOUND_EDDYSTONE, map);
-                    }
-                }
-
-                @Override
-                public void lostDevice(ProximiioBLEDevice device, boolean registered) {
-                    WritableMap map = convertDevice(device);
-                    if (device.getType() == ProximiioInput.InputType.IBEACON) {
-                        sendEvent(EVENT_LOST_IBEACON, map);
-                    } else if (device.getType() == ProximiioInput.InputType.EDDYSTONE) {
-                        sendEvent(EVENT_LOST_EDDYSTONE, map);
-                    }
-                }
-
-                @Override
-                public void loggedIn(boolean online, String auth) {
-                    if (authPromise != null && online) {
-                        WritableMap map = Arguments.createMap();
-                        map.putString("visitorId", proximiioAPI.getVisitorID());
-                        authPromise.resolve(map);
-                    }
-                }
-
-                @Override
-                public void loginFailed(LoginError error) {
-                    if (authPromise != null) {
-                        if (error == LOGIN_FAILED) {
-                            authPromise.reject("403", "Proximi.io authorization failed");
-                        } else {
-                            authPromise.reject("404", "Proximi.io connection failed");
-                        }
-                    }
-                }
-            });
-
-            proximiioAPI.setAuth(auth, true);
-            trySetActivity();
-            proximiioAPI.onStart();
-        } else {
-            WritableMap map = Arguments.createMap();
-            map.putString("visitorId", proximiioAPI.getVisitorID());
-            authPromise.resolve(map);
+        if (proximiioAPI != null) {
+            proximiioAPI.setActivity(null);
+            proximiioAPI.onStop();
         }
+
+        proximiioAPI = new ProximiioAPI(TAG, reactContext, options);
+        proximiioAPI.setListener(new ProximiioListener() {
+            @Override
+            public void positionExtended(double lat, double lon, double accuracy, ProximiioGeofence.EventType type) {
+                sendEvent(EVENT_POSITION_UPDATED, convertLocation(lat, lon, accuracy, type));
+            }
+
+            @Override
+            public void changedFloor(@Nullable ProximiioFloor floor) {
+                lastFloor = floor;
+                sendEvent(EVENT_FLOOR_CHANGED, convertFloor(floor));
+            }
+
+            @Override
+            public void geofenceEnter(ProximiioGeofence geofence) {
+                if (!geofences.contains(geofence)) {
+                    geofences.add(geofence);
+                }
+                sendEvent(EVENT_GEOFENCE_ENTER, convertArea(geofence));
+            }
+
+            @Override
+            public void geofenceExit(ProximiioGeofence geofence, @Nullable Long dwellTime) {
+                WritableMap map = convertArea(geofence);
+                if (dwellTime != null) {
+                    map.putInt("dwellTime", dwellTime.intValue());
+                } else {
+                    map.putNull("dwellTime");
+                }
+                if (geofences.contains(geofence)) {
+                    geofences.remove(geofence);
+                }
+                sendEvent(EVENT_GEOFENCE_EXIT, map);
+            }
+
+            @Override
+            public void privacyZoneEnter(ProximiioArea area) {
+                sendEvent(EVENT_PRIVACY_ZONE_ENTER, convertArea(area));
+            }
+
+            @Override
+            public void privacyZoneExit(ProximiioArea area) {
+                sendEvent(EVENT_PRIVACY_ZONE_EXIT, convertArea(area));
+            }
+
+            @Override
+            public void foundDevice(ProximiioBLEDevice device, boolean registered) {
+                WritableMap map = convertDevice(device);
+                if (device.getType() == ProximiioInput.InputType.IBEACON) {
+                    sendEvent(EVENT_FOUND_IBEACON, map);
+                } else if (device.getType() == ProximiioInput.InputType.EDDYSTONE) {
+                    sendEvent(EVENT_FOUND_EDDYSTONE, map);
+                }
+            }
+
+            @Override
+            public void lostDevice(ProximiioBLEDevice device, boolean registered) {
+                WritableMap map = convertDevice(device);
+                if (device.getType() == ProximiioInput.InputType.IBEACON) {
+                    sendEvent(EVENT_LOST_IBEACON, map);
+                } else if (device.getType() == ProximiioInput.InputType.EDDYSTONE) {
+                    sendEvent(EVENT_LOST_EDDYSTONE, map);
+                }
+            }
+
+            @Override
+            public void loggedIn(boolean online, String auth) {
+                if (authPromise != null && online) {
+                    WritableMap map = Arguments.createMap();
+                    map.putString("visitorId", proximiioAPI.getVisitorID());
+                    authPromise.resolve(map);
+                }
+            }
+
+            @Override
+            public void loginFailed(LoginError error) {
+                if (authPromise != null) {
+                    if (error == LOGIN_FAILED) {
+                        authPromise.reject("403", "Proximi.io authorization failed");
+                    } else {
+                        authPromise.reject("404", "Proximi.io connection failed");
+                    }
+                }
+            }
+        });
+
+        proximiioAPI.setAuth(auth, true);
+        trySetActivity();
+        proximiioAPI.onStart();
     }
+
 
     @ReactMethod
     public void destroy(boolean eraseData) {
