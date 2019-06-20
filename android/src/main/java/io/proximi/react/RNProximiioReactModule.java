@@ -123,7 +123,11 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
     @ReactMethod
     public void currentGeofences(Promise promise) {
-        promise.resolve(geofences);
+        ArrayList<WritableMap> converted = new ArrayList<WritableMap>();
+        for (ProximiioGeofence geofence : geofences) {
+            converted.add(this.convertArea((geofence)));
+        }
+        promise.resolve(converted);
     }
 
     private WritableMap convertLocation(double lat, double lon, double accuracy, @Nullable ProximiioGeofence.EventType type) {
