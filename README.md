@@ -569,6 +569,9 @@ onGeofenceExit(geofence) {
 
 ## ChangeLog
 
+### 0.2.12
+- android currentGeofences fix
+
 ### 0.2.11
 - improved state recovery for some android devices
 
