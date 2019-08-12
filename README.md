@@ -570,6 +570,10 @@ onGeofenceExit(geofence) {
 ## ChangeLog
 
 ### 0.2.12
+- android Fix Concurrent Modification Exception while modifying 
+geofences data in geofenceEnter and geofenceExit callback methods.
+
+### 0.2.12
 - android currentGeofences fix
 
 ### 0.2.11
