@@ -3,7 +3,6 @@ package io.proximi.react;
 import android.app.Activity;
 import android.content.Intent;
 
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
@@ -18,10 +17,10 @@ import com.facebook.react.bridge.WritableArray;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.modules.core.DeviceEventManagerModule;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import io.proximi.proximiiolibrary.ProximiioAPI;
 import io.proximi.proximiiolibrary.ProximiioApplication;
@@ -59,7 +58,7 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
 
     private Promise authPromise;
     private ProximiioFloor lastFloor;
-    private List<ProximiioGeofence> geofences = new ArrayList<ProximiioGeofence>();
+    private List<ProximiioGeofence> geofences = new CopyOnWriteArrayList<>();
 
     RNProximiioReactModule(ReactApplicationContext reactContext) {
         super(reactContext);
@@ -434,14 +433,9 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @Override
-    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
         if (proximiioAPI != null) {
             proximiioAPI.onActivityResult(requestCode, resultCode, data);
         }
-    }
-
-    @Override
-    public void onNewIntent(Intent intent) {
-
     }
 }
