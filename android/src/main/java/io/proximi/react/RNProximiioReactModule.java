@@ -33,6 +33,7 @@ import io.proximi.proximiiolibrary.ProximiioIBeacon;
 import io.proximi.proximiiolibrary.ProximiioInput;
 import io.proximi.proximiiolibrary.ProximiioListener;
 import io.proximi.proximiiolibrary.ProximiioOptions;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import static io.proximi.proximiiolibrary.ProximiioListener.LoginError.LOGIN_FAILED;
 
@@ -433,9 +434,14 @@ public class RNProximiioReactModule extends ReactContextBaseJavaModule implement
     }
 
     @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent data) {
         if (proximiioAPI != null) {
             proximiioAPI.onActivityResult(requestCode, resultCode, data);
         }
+    }
+
+    @Override
+    public void onNewIntent(Intent intent) {
+
     }
 }
