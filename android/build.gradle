@@ -56,7 +56,7 @@ repositories {
 
 dependencies {
     implementation 'com.facebook.react:react-native:+'
-    implementation 'io.proximi.proximiiolibrary:proximiiolibrary:2.8.6'
+    implementation 'io.proximi.proximiiolibrary:proximiiolibrary:2.8.8'
     
     implementation("androidx.core:core:1.0.1")
     implementation("androidx.versionedparcelable:versionedparcelable:1.0.0")
