@@ -583,6 +583,9 @@ onGeofenceExit(geofence) {
 
 ## ChangeLog
 
+### 0.2.15
+- added enable and disable methods for IOS
+
 ### 0.2.14
 - android sdk version bump
 
