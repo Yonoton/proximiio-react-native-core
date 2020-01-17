@@ -36,6 +36,22 @@ class Proximiio {
   requestPermissions() {
     NativeModules.ProximiioNative.requestPermissions()
   }
+  
+  enable() {
+    if (Platform.OS === 'ios') {
+      NativeModules.ProximiioNative.enable()
+    }
+  }
+  
+  disable() {
+    if (Platform.OS === 'ios') {
+      NativeModules.ProximiioNative.disable()
+    }
+  }
+  
+  requestPermissions() {
+    NativeModules.ProximiioNative.requestPermissions()
+  }
 
   subscribe(event, fn) {
     return this.emitter.addListener(event, fn)
