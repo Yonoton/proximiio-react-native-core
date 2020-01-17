@@ -321,6 +321,20 @@ Proximiio.setNativeAccuracy(Proximiio.NativeAccuracy.GPS)
 Proximiio.setNativeAccuracy(Proximiio.NativeAccuracy.Navigation)
 ```
 
+### Proximiio.enable() -> void
+Enables positioning engine
+
+```
+Proximiio.enable()
+```
+
+### Proximiio.disable() -> void
+Disables positioning engine
+
+```
+Proximiio.disable()
+```
+
 ### Proximiio.setNotificationMode(NotificationMode) -> void (Android Only)
 Sets the notification policy of the SDK.
 
