@@ -13,8 +13,7 @@ Pod::Spec.new do |s|
   s.source       = { :git => "https://github.com/proximiio/proximiio-react-native-core.git" }
   s.source_files = "ios/ProximiioNative/**/*.{h,m}"
 
-  s.vendored_frameworks = 'ios/ProximiioNative/IndoorAtlas.framework'
-  s.vendored_frameworks = 'ios/ProximiioNative/Proximiio.framework'
+  s.vendored_frameworks = 'ios/ProximiioNative/Proximiio.framework', 'ios/ProximiioNative/IndoorAtlas.framework'
 
   s.dependency 'React'
 end
